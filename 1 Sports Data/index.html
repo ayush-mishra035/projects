@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SportStats | Advanced Sports Analytics Platform</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+  <!-- Show offline status -->
+  <!-- <div id="offlineBanner" class="offline hidden">You are offline. Some features may be limited.</div> -->
+
+  <header>
+    <h1>🏆 SportStats Dashboard</h1>
+    <p>Advanced Sports Analytics Platform</p>
+    
+    <div style="position:absolute; top:20px; left:20px; display:flex; gap:10px;">
+      <button id="themeToggle" class="btn btn-weather" aria-label="Toggle theme" title="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+    <!-- Live Clock (top-right) -->
+    <div id="liveClock" class="clock-widget" aria-live="polite" title="Local time">
+      <!-- time filled by script -->
+    </div>
+  </header>
+
+  <!-- Team Management Section -->
+  <section class="form-section">
+    <h2>🏏 Team Management</h2>
+    <div class="btn-group">
+      <button id="addTeamBtn" class="btn">
+        <i class="fas fa-plus"></i> Add New Team
+      </button>
+      <button id="exportBtn" class="btn btn-secondary">
+        <i class="fas fa-download"></i> Export Data
+      </button>
+      <button id="importBtn" class="btn btn-info">
+        <i class="fas fa-upload"></i> Import Data
+      </button>
+      <button id="generateReportBtn" class="btn btn-success">
+        <i class="fas fa-file-pdf"></i> Generate Report
+      </button>
+    </div>
+
+    <!-- Hidden import input (required by script.js) -->
+    <input type="file" id="importFile" accept=".json" style="display:none;">
+
+    <div id="addTeamForm" style="display: none; margin-top: 20px;">
+      <h3>Add New Team</h3>
+      <form id="teamForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="teamName">Team Name:</label>
+            <input type="text" id="teamName" name="teamName" required>
+          </div>
+          <div class="form-group">
+            <label for="players">Number of Players:</label>
+            <input type="number" id="players" name="players" value="11" required>
+          </div>
+          <div class="form-group">
+            <label for="matches">Total Matches:</label>
+            <input type="number" id="matches" name="matches" required>
+          </div>
+          <div class="form-group">
+            <label for="wins">Wins:</label>
+            <input type="number" id="wins" name="wins" required>
+          </div>
+          <div class="form-group">
+            <label for="losses">Losses:</label>
+            <input type="number" id="losses" name="losses" required>
+          </div>
+          <div class="form-group">
+            <label for="totalRuns">Total Runs/Goals:</label>
+            <input type="number" id="totalRuns" name="totalRuns" required>
+          </div>
+          <div class="form-group">
+            <label for="totalWickets">Total Wickets/Points:</label>
+            <input type="number" id="totalWickets" name="totalWickets" required>
+          </div>
+          <div class="form-group">
+            <label for="founded">Founded Year:</label>
+            <input type="number" id="founded" name="founded" required>
+          </div>
+          <div class="form-group">
+            <label for="captain">Captain:</label>
+            <input type="text" id="captain" name="captain" required>
+          </div>
+        </div>
+        <button type="button" id="saveTeamBtn" class="btn">Save Team</button>
+        <button type="button" id="cancelTeamBtn" class="btn btn-secondary">Cancel</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Player Management Section -->
+  <section class="form-section">
+    <h2>🏃‍♂️ Player Management</h2>
+    <div class="btn-group">
+      <button id="addPlayerBtn" class="btn">
+        <i class="fas fa-user-plus"></i> Add New Player
+      </button>
+    </div>
+
+    <div id="addPlayerForm" style="display: none; margin-top: 20px;">
+      <h3>Add New Player</h3>
+      <form id="playerForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="playerName">Player Name:</label>
+            <input type="text" id="playerName" name="playerName" required>
+          </div>
+          <div class="form-group">
+            <label for="playerTeam">Team:</label>
+            <select id="playerTeam" name="playerTeam" required>
+              <option value="">Select Team</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="playerMatches">Matches Played:</label>
+            <input type="number" id="playerMatches" name="playerMatches" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="playerRuns">Total Runs/Goals:</label>
+            <input type="number" id="playerRuns" name="playerRuns" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="playerPosition">Position:</label>
+            <input type="text" id="playerPosition" name="playerPosition" placeholder="e.g., Batsman, Bowler">
+          </div>
+          <div class="form-group">
+            <label for="playerAge">Age:</label>
+            <input type="number" id="playerAge" name="playerAge" min="16" max="50">
+          </div>
+        </div>
+        <button type="button" id="savePlayerBtn" class="btn">Save Player</button>
+        <button type="button" id="cancelPlayerBtn" class="btn btn-secondary">Cancel</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Filter Section -->
+  <section class="filter">
+    <label for="teamSelect">Select Team:</label>
+    <select id="teamSelect">
+      <option value="all">All Teams</option>
+      <option value="Titans">Titans</option>
+      <option value="Warriors">Warriors</option>
+      <option value="Falcons">Falcons</option>
+    </select>
+  </section>
+
+  <!-- Player Table Section -->
+  <section id="playerTable">
+    <h2>Player Statistics</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Team</th>
+          <th>Matches</th>
+          <th>Runs/Goals</th>
+          <th>Average</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </section>
+
+  <!-- Enhanced Analytics Section -->
+  <section id="analytics">
+    <h2>📊 Advanced Team Analytics</h2>
+    
+    <!-- Key Statistics -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h4>Total Teams</h4>
+        <p class="stat-value" id="totalTeams">0</p>
+      </div>
+      <div class="stat-card">
+        <h4>Total Matches</h4>
+        <p class="stat-value" id="totalMatches">0</p>
+      </div>
+      <div class="stat-card">
+        <h4>Total Runs/Goals</h4>
+        <p class="stat-value" id="totalRuns">0</p>
+      </div>
+      <div class="stat-card">
+        <h4>Average Win Rate</h4>
+        <p class="stat-value" id="avgWinRate">0%</p>
+      </div>
+    </div>
+    
+    <!-- Enhanced Charts Grid -->
+    <div class="charts-container">
+      <div class="chart-card">
+        <h3>📈 Runs & Wickets Analysis</h3>
+        <canvas id="runsChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>🏆 Win Rate Distribution</h3>
+        <canvas id="winRateChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>⚡ Performance Radar</h3>
+        <canvas id="performanceChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>🔍 Team Comparison</h3>
+        <div class="team-selector">
+          <select id="team1Select">
+            <option value="">Select Team 1</option>
+          </select>
+          <span>VS</span>
+          <select id="team2Select">
+            <option value="">Select Team 2</option>
+          </select>
+        </div>
+        <canvas id="comparisonChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h3>📍 Geographic Distribution</h3>
+        <div id="mapContainer" style="height: 350px; border-radius: 10px;"></div>
+      </div>
+    </div>
+    
+    <p id="topPlayer"></p>
+  </section>
+
+  <!-- Real-time Updates Section -->
+  <section class="realtime-section">
+    <h2>⚡ Live Updates</h2>
+
+    <div class="realtime-grid">
+      <div class="update-card">
+        <h4>Live Scores</h4>
+        <div id="liveScores" class="live-content"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Developed by Ayush kumar And Deepak kumar| sports Hackathon 2025</p>
+  </footer>
+
+  <!-- Toast notifications and busy overlay -->
+  <div id="toast" class="toast"></div>
+  <div id="appBusy" class="busy hidden">
+    <div class="busy-inner">
+      <i class="fas fa-circle-notch fa-spin"></i>
+      <span>Processing...</span>
+    </div>
+  </div>
+
+  <!-- Enhanced Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
